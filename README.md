@@ -2,7 +2,7 @@
 
 A modern, intelligent resume builder powered by AI that helps you create professional resumes with ease. This full-stack application combines a React frontend with a Node.js backend to deliver AI-enhanced resume building capabilities.
 
-Live-https://resume-builder-ai30.vercel.app
+Live-ai-resume-builder-eight-ruddy.vercel.app
 
 ## ✨ Features
 
