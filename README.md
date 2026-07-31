@@ -1,19 +1,19 @@
 # AI Resume Builder
 
-A modern, intelligent resume builder powered by AI that helps you create professional resumes with ease. This full-stack application combines a React frontend with a Node.js backend to deliver AI-enhanced resume building capabilities.
+A modern, intelligent resume builder powered by AI that helps you create professional resumes with ease. This full-stack application combines a React frontend with a Node.js/Express backend and a PostgreSQL database to deliver AI-enhanced resume building capabilities.
 
-Live-https://ai-resume-builder-eight-ruddy.vercel.app/
+Live: https://resume-builder-ai30.vercel.app
 
 ## ✨ Features
 
-- **AI-Powered Enhancement**: Automatically improve your resume content with AI suggestions using Google Gemini and OpenAI
+- **AI-Powered Enhancement**: Automatically improve your resume content with AI suggestions using Google Gemini
 - **Real-time Preview**: See your resume as you build it
-- **Multiple Templates**: Choose from various professional resume templates
+- **Multiple Templates**: Choose from 20+ professional resume templates
 - **PDF Export**: Download your resume as a high-quality PDF
 - **Document Upload**: Import existing resumes from PDF or Word documents
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **User Authentication**: Secure JWT-based login and registration system
-- **Resume Management**: Save, edit, and manage multiple resumes in MongoDB
+- **Resume Management**: Save, edit, and manage multiple resumes in PostgreSQL
 - **Modern UI**: Clean, intuitive interface with smooth animations
 - **File Processing**: Advanced PDF and Word document parsing
 
@@ -21,9 +21,8 @@ Live-https://ai-resume-builder-eight-ruddy.vercel.app/
 
 ### Frontend
 - **Framework**: React 19 with Vite
-- **Styling**: Tailwind CSS v4
+- **Styling**: Tailwind CSS
 - **Icons**: FontAwesome, Lucide React, React Icons
-- **Animations**: Framer Motion
 - **PDF Generation**: html2pdf.js
 - **HTTP Client**: Axios
 - **Routing**: React Router DOM
@@ -31,163 +30,148 @@ Live-https://ai-resume-builder-eight-ruddy.vercel.app/
 
 ### Backend
 - **Runtime**: Node.js with Express.js
-- **Database**: MongoDB with Mongoose
+- **Database**: PostgreSQL, accessed with the `pg` (node-postgres) library — no ORM, raw parameterised SQL queries
 - **Authentication**: JWT with bcryptjs
-- **AI Integration**: Google Gemini AI, OpenAI
+- **AI Integration**: Google Gemini AI (official API and an OpenRouter-based fallback path)
 - **File Processing**: Multer, PDF-Parse, Mammoth
 - **Security**: Helmet, CORS
-- **Logging**: Winston, Morgan
+- **Logging**: Morgan
 - **Validation**: Express Validator
 
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
-- Node.js (version 16 or higher)
-- npm or yarn package manager
-- MongoDB (local installation or MongoDB Atlas account)
-- Git
+- Node.js (v18 or higher recommended)
+- npm
+- PostgreSQL (local installation, e.g. via postgresql.org, or a hosted instance like Neon/Supabase)
+- (Optional) Git, if you're cloning from a repository instead of using a downloaded zip
 
 ## 🛠️ Installation & Setup
 
-### 1. Clone the Repository
+### 1. Get the project
+
 ```bash
 git clone https://github.com/yourusername/ai-resume-builder.git
-cd ai-resume-builder/Ai_Resume_Akshay
+cd Ai_ResumeBuilder-main
 ```
+(Or simply unzip the downloaded project folder and open it.)
 
-### 2. Backend Setup
+### 2. Database Setup
+
+Create the database and load the schema (run these once):
 
 ```bash
-# Navigate to server directory
+psql -U postgres
+```
+At the `postgres=#` prompt:
+```sql
+CREATE DATABASE resume_builder;
+\q
+```
+Then load the tables:
+```bash
+psql -U postgres -d resume_builder -f server/config/schema.sql
+```
+
+### 3. Backend Setup
+
+```bash
 cd server
-
-# Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env
 ```
 
 Edit the `server/.env` file with your configuration:
 ```env
 # Database
-MONGODB_URI=mongodb://localhost:27017/ai-resume-builder
-# or for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ai-resume-builder
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=resume_builder
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
 
-# JWT Secret
+# JWT
 JWT_SECRET=your-super-secret-jwt-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
+JWT_EXPIRES_IN=7d
 
-# AI API Keys
-GOOGLE_API_KEY=your-google-gemini-api-key
-OPENAI_API_KEY=your-openai-api-key
-
-# Server Configuration
+# Server
 PORT=5000
-NODE_ENV=development
 
-# CORS
-CLIENT_URL=http://localhost:5173
+# AI (Google Gemini)
+USE_OFFICIAL_GEMINI=true
+GEMINI_API_KEY=your-google-gemini-api-key
 ```
 
 ```bash
-# Start the backend server
 npm run dev
-# or for production
-npm start
 ```
 
 The server will run on `http://localhost:5000`
 
-### 3. Frontend Setup
+### 4. Frontend Setup
 
-Open a new terminal and navigate to the client directory:
+Open a **new** terminal (keep the backend terminal running):
 
 ```bash
-# Navigate to client directory
-cd ../client
-
-# Install dependencies
+cd client
 npm install
-
-# Set up environment variables
-cp .env.example .env
 ```
 
-Edit the `client/.env` file:
+Create a `client/.env` file (there's a `.env.example` to copy from):
 ```env
 VITE_API_BASE_URL=http://localhost:5000
 ```
 
 ```bash
-# Start the frontend development server
 npm run dev
 ```
 
 The client will run on `http://localhost:5173`
 
-### 4. Database Setup
+### 5. AI API Setup — Google Gemini
 
-If using local MongoDB:
-```bash
-# Start MongoDB service
-mongod
-```
-
-If using MongoDB Atlas:
-- Create a cluster on [MongoDB Atlas](https://www.mongodb.com/atlas)
-- Get your connection string
-- Update the `MONGODB_URI` in your server `.env` file
-
-### 5. AI API Setup
-
-#### Google Gemini AI
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
 2. Create an API key
-3. Add it to your server `.env` file as `GOOGLE_API_KEY`
+3. Add it to your `server/.env` file as `GEMINI_API_KEY`, and set `USE_OFFICIAL_GEMINI=true`
 
-#### OpenAI (Optional)
-1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Create an API key
-3. Add it to your server `.env` file as `OPENAI_API_KEY`
+Without this key, the rest of the app works fine — only the "Enhance with AI" feature will fail.
 
 ## 📁 Project Structure
 
 ```
-Ai_Resume_Akshay/
+Ai_ResumeBuilder-main/
 ├── client/                 # Frontend React application
-│   ├── public/
-│   │   ├── Resume.svg      # App favicon
-│   │   └── vite.svg
+│   ├── public/             # Static assets (favicon, logos)
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── auth/       # Authentication components
-│   │   │   ├── common/     # Reusable UI components
-│   │   │   ├── forms/      # Form components
-│   │   │   └── resume/     # Resume-specific components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API service layer
-│   │   ├── utils/          # Utility functions
-│   │   ├── App.jsx         # Main app component
+│   │   ├── components/     # Reusable UI pieces
+│   │   │   ├── auth/               # Login/signup UI pieces
+│   │   │   ├── ai-resume-templates/ # 20+ resume template designs
+│   │   │   └── templateCard/        # Template picker cards
+│   │   ├── pages/          # Screens (Home, BuildOption, details/*, auth/*)
+│   │   ├── context/        # AuthContext, ResumeContext (app-wide shared state)
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── services/       # API calls to the backend (apiService, authService, resumeService, geminiService)
+│   │   ├── routes/         # AppRoutes, PrivateRoute, PublicRoute
+│   │   ├── utils/          # File parsing, formatting helpers
+│   │   ├── App.jsx         # Root app component
 │   │   └── main.jsx        # App entry point
-│   ├── .env.example        # Environment variables template
+│   ├── .env                # Environment variables (create from .env.example)
 │   ├── package.json        # Frontend dependencies
 │   ├── tailwind.config.cjs # Tailwind CSS configuration
 │   └── vite.config.js      # Vite configuration
 ├── server/                 # Backend Node.js application
-│   ├── config/             # Database and app configuration
-│   ├── controllers/        # Route controllers
-│   ├── middleware/         # Custom middleware
-│   ├── models/             # MongoDB models
-│   ├── routes/             # API routes
-│   ├── services/           # Business logic services
-│   ├── utils/              # Utility functions
-│   ├── uploads/            # File upload directory
-│   ├── .env                # Environment variables
-│   ├── package.json        # Backend dependencies
-│   └── server.js           # Server entry point
-└── test-endpoints.sh       # API testing script
+│   ├── config/              # database.js (PostgreSQL pool), schema.sql, initDb.js
+│   ├── controllers/         # authController, resumeController, geminiController
+│   ├── middleware/          # auth.js (JWT check), validate.js
+│   ├── models/               # resumeModel.js (raw SQL queries)
+│   ├── routes/               # authRoutes, resumeRoutes, geminiRoutes, dynamic/template routes
+│   ├── services/             # geminiService.js (calls the Gemini API)
+│   ├── utils/                 # errorHandler.js
+│   ├── uploads/               # Uploaded files saved here
+│   ├── scripts/                # One-off DB migration/seed scripts
+│   ├── .env                    # Environment variables (secrets — not committed to Git)
+│   ├── package.json            # Backend dependencies
+│   └── server.js               # Server entry point
 ```
 
 ## 🎯 Available Scripts
@@ -201,7 +185,7 @@ Ai_Resume_Akshay/
 ### Backend (server/)
 - `npm run dev` - Start development server with nodemon
 - `npm start` - Start production server
-- `node createDemoUser.js` - Create demo user for testing
+- `node createDemoUser.js` - Create a demo user for testing
 
 ## 🔧 Configuration
 
@@ -214,90 +198,83 @@ VITE_API_BASE_URL=http://localhost:5000
 
 #### Server (.env)
 ```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/ai-resume-builder
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=resume_builder
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
 
-# JWT
 JWT_SECRET=your-super-secret-jwt-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
+JWT_EXPIRES_IN=7d
 
-# AI APIs
-GOOGLE_API_KEY=your-google-gemini-api-key
-OPENAI_API_KEY=your-openai-api-key
-
-# Server
 PORT=5000
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
+
+USE_OFFICIAL_GEMINI=true
+GEMINI_API_KEY=your-google-gemini-api-key
 ```
 
 ### Database Configuration
 
-The application uses MongoDB with Mongoose ODM. Models include:
-- User (authentication and profile)
-- Resume (resume data and metadata)
-- File uploads for document processing
+The application uses **PostgreSQL**, connected directly via the `pg` library (no ORM — queries are written in raw SQL). Main tables:
+- `users` — accounts and hashed passwords
+- `resumes` — resume content, including JSONB columns for flexible sections like skills/experience
+- `enhancement_history` — a log of every AI enhancement (before/after text)
+- `resume_templates` — template metadata
+- `file_uploads` — tracks uploaded files linked to a resume
 
 ### AI Integration
 
-The app supports multiple AI providers:
-- **Google Gemini AI**: Primary AI service for content enhancement
-- **OpenAI**: Alternative AI service for content generation
+The app is built around **Google Gemini** for content enhancement, with the request flow: client → backend `/api/enhance` route → `geminiController.js` builds a prompt → `geminiService.js` calls the Gemini API → response is logged to `enhancement_history` and returned to the client.
 
 ## 🎨 Features Overview
 
 ### Resume Builder
-- Interactive form-based resume creation
+- Interactive form-based resume creation, one page per section (Personal Info, Experience, Education, Skills, Projects, Languages)
 - Real-time preview updates
-- Multiple sections: Personal Info, Experience, Education, Skills, etc.
-- Drag-and-drop functionality for reordering sections
+- Context-based state shared across every step (`ResumeContext`)
 
 ### AI Enhancement
-- Intelligent content suggestions using Google Gemini AI
-- Grammar and style improvements
-- Industry-specific optimizations
-- Keyword optimization for ATS systems
-- Multiple AI models support (Gemini, OpenAI)
+- Content suggestions and rewrites using Google Gemini
+- Section-specific prompts (summary, skills, experience are enhanced differently)
+- Every enhancement is logged to the database for tracking
 
 ### Document Processing
-- PDF resume parsing and import
-- Word document (.docx) import
-- Automatic content extraction and formatting
-- File upload with validation
+- PDF resume parsing and import (`pdf-parse`, `pdfjs-dist`)
+- Word document (.docx) import (`mammoth`)
+- Automatic content extraction to pre-fill the resume form
 
 ### Authentication & Security
-- JWT-based authentication
+- JWT-based authentication (7-day token expiry by default)
 - Secure password hashing with bcryptjs
-- Protected API routes
-- User session management
+- Protected API routes via `middleware/auth.js`
+- Parameterised SQL queries (prevents SQL injection)
 
 ### Templates & Export
-- Professional resume templates
-- Customizable layouts
-- High-quality PDF generation
-- Print-friendly designs
+- 20+ professional resume templates (React components)
+- High-quality PDF generation via html2pdf.js
 - Mobile-responsive previews
 
 ## 🚀 API Endpoints
 
-### Authentication
+### Authentication (`/api/auth`)
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
-- `POST /api/auth/refresh` - Refresh JWT token
+- `GET /api/auth/profile` - Get user profile (requires token)
+- `PUT /api/auth/profile` - Update user profile (requires token)
+- `POST /api/auth/logout` - Log out (requires token)
 
-### Resume Management
-- `GET /api/resumes` - Get all user resumes
-- `POST /api/resumes` - Create new resume
-- `GET /api/resumes/:id` - Get specific resume
-- `PUT /api/resumes/:id` - Update resume
-- `DELETE /api/resumes/:id` - Delete resume
+### Resume Management (`/api/resumes`)
+- `GET /api/resumes/my-resumes` - Get all resumes for the logged-in user
+- `POST /api/resumes` - Create a new resume
+- `GET /api/resumes/:id` - Get a specific resume
+- `PUT /api/resumes/:id` - Update a resume
+- `DELETE /api/resumes/:id` - Delete a resume
+- `GET /api/resumes/suggestions` - Get resume suggestions
+- `GET /api/resumes/stats/enhancements` - Enhancement usage stats
 
-### AI Enhancement
-- `POST /api/ai/enhance` - Enhance resume content with AI
-
-### File Upload
-- `POST /api/upload` - Upload and parse resume files
+### AI Enhancement (`/api/enhance`)
+- `POST /api/enhance` - Enhance a resume section with AI
 
 ## 🤝 Contributing
 
@@ -313,17 +290,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- React team for the amazing framework
+- React team for the framework
 - Tailwind CSS for the utility-first CSS framework
 - Vite for the fast build tool
+- PostgreSQL and the node-postgres (`pg`) maintainers
 - All the open-source contributors who made this project possible
-
-## 📞 Support
-
-If you have any questions or need help, please:
-- Open an issue on GitHub
-- Contact the maintainers
-
----
-
-**Made with ❤️ by Akshay**
